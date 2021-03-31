@@ -630,9 +630,9 @@ func (tx *MdbxTx) Commit(ctx context.Context) error {
 	defer func() {
 		tx.tx = nil
 		tx.db.wg.Done()
-		if !tx.readOnly {
-			//runtime.UnlockOSThread()
-		}
+		//if !tx.readOnly {
+		//runtime.UnlockOSThread()
+		//}
 	}()
 	tx.closeCursors()
 
@@ -673,9 +673,9 @@ func (tx *MdbxTx) Rollback() {
 	defer func() {
 		tx.tx = nil
 		tx.db.wg.Done()
-		if !tx.readOnly {
-			//runtime.UnlockOSThread()
-		}
+		//if !tx.readOnly {
+		//runtime.UnlockOSThread()
+		//}
 	}()
 	tx.closeCursors()
 	tx.printDebugInfo()
