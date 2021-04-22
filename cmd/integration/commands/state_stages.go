@@ -58,7 +58,7 @@ Examples:
 		utils.SetupMinerCobra(cmd, &miningConfig)
 		db := openDatabase2(path.Join(cfg.DataDir, "tg", "chaindata"), true, "", ethConfig.SnapshotMode)
 		defer db.Close()
-		if err := syncBySmallSteps(db, miningConfig, ctx); err != nil {
+		if err := syncBySmallSteps(ethdb.NewObjectDatabase(db), miningConfig, ctx); err != nil {
 			log.Error("Error", "err", err)
 			return nil
 		}
@@ -83,7 +83,7 @@ var loopIhCmd = &cobra.Command{
 		if unwind == 0 {
 			unwind = 1
 		}
-		if err := loopIh(db, ctx, unwind); err != nil {
+		if err := loopIh(ethdb.NewObjectDatabase(db), ctx, unwind); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -101,7 +101,7 @@ var loopExecCmd = &cobra.Command{
 		if unwind == 0 {
 			unwind = 1
 		}
-		if err := loopExec(db, ctx, unwind); err != nil {
+		if err := loopExec(ethdb.NewObjectDatabase(db), ctx, unwind); err != nil {
 			log.Error("Error", "err", err)
 			return nil
 		}

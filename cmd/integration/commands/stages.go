@@ -40,7 +40,7 @@ var cmdStageBodies = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageBodies(db, ctx); err != nil {
+		if err := stageBodies(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -56,7 +56,7 @@ var cmdStageSenders = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageSenders(db, ctx); err != nil {
+		if err := stageSenders(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -72,7 +72,7 @@ var cmdStageExec = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageExec(db, ctx); err != nil {
+		if err := stageExec(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -88,7 +88,7 @@ var cmdStageTrie = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageTrie(db, ctx); err != nil {
+		if err := stageTrie(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -104,7 +104,7 @@ var cmdStageHashState = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageHashState(db, ctx); err != nil {
+		if err := stageHashState(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -120,7 +120,7 @@ var cmdStageHistory = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageHistory(db, ctx); err != nil {
+		if err := stageHistory(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -136,7 +136,7 @@ var cmdLogIndex = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageLogIndex(db, ctx); err != nil {
+		if err := stageLogIndex(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -152,7 +152,7 @@ var cmdCallTraces = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageCallTraces(db, ctx); err != nil {
+		if err := stageCallTraces(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -168,7 +168,7 @@ var cmdStageTxLookup = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		if err := stageTxLookup(db, ctx); err != nil {
+		if err := stageTxLookup(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -183,7 +183,7 @@ var cmdPrintStages = &cobra.Command{
 		db := openDatabase(chaindata, false)
 		defer db.Close()
 
-		if err := printAllStages(db, ctx); err != nil {
+		if err := printAllStages(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -198,7 +198,7 @@ var cmdPrintMigrations = &cobra.Command{
 		ctx := utils.RootContext()
 		db := openDatabase(chaindata, false)
 		defer db.Close()
-		if err := printAppliedMigrations(db, ctx); err != nil {
+		if err := printAppliedMigrations(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}
@@ -213,7 +213,7 @@ var cmdRemoveMigration = &cobra.Command{
 		ctx := utils.RootContext()
 		db := openDatabase(chaindata, false)
 		defer db.Close()
-		if err := removeMigration(db, ctx); err != nil {
+		if err := removeMigration(ethdb.NewObjectDatabase(db), ctx); err != nil {
 			log.Error("Error", "err", err)
 			return err
 		}

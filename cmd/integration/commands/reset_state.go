@@ -24,7 +24,7 @@ var cmdResetState = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		err := resetState(db, ctx)
+		err := resetState(ethdb.NewObjectDatabase(db), ctx)
 		if err != nil {
 			log.Error(err.Error())
 			return err
@@ -42,7 +42,7 @@ var cmdClearUnwindStack = &cobra.Command{
 		db := openDatabase(chaindata, true)
 		defer db.Close()
 
-		err := clearUnwindStack(db, ctx)
+		err := clearUnwindStack(ethdb.NewObjectDatabase(db), ctx)
 		if err != nil {
 			log.Error(err.Error())
 			return err
