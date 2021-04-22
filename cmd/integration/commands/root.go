@@ -39,28 +39,30 @@ func RootCommand() *cobra.Command {
 }
 
 func openDatabase2(path string, applyMigrations bool, snapshotDir string, snapshotMode snapshotsync.SnapshotMode) *ethdb.ObjectDatabase {
-	db := ethdb.NewObjectDatabase(openKV(path, false))
+	db := openKV(path, false)
 	if applyMigrations {
-		has, err := migrations.NewMigrator().HasPendingMigrations(db)
+		has, err := migrations.NewMigrator().HasPendingMigrations(ethdb.NewObjectDatabase(db))
 		if err != nil {
 			panic(err)
 		}
 		if has {
 			log.Info("Re-Opening DB in exclusive mode to apply DB migrations")
 			db.Close()
-			db = ethdb.NewObjectDatabase(openKV(path, true))
-			if err := migrations.NewMigrator().Apply(db, datadir); err != nil {
+			db = openKV(path, true)
+			if err := migrations.NewMigrator().Apply(ethdb.NewObjectDatabase(db), datadir); err != nil {
 				panic(err)
 			}
 			db.Close()
-			db = ethdb.NewObjectDatabase(openKV(path, false))
+			db = openKV(path, false)
 		}
 	}
-	metrics.AddCallback(db.RwKV().CollectMetrics)
-	if err := SetSnapshotKV(db, snapshotDir, snapshotMode); err != nil {
+	metrics.AddCallback(db.CollectMetrics)
+	var err error
+	db, err = SetSnapshotKV(db, snapshotDir, snapshotMode)
+	if err != nil {
 		panic(err)
 	}
-	return db
+	return ethdb.NewObjectDatabase(db)
 }
 
 func openDatabase(path string, applyMigrations bool) *ethdb.ObjectDatabase {

@@ -740,15 +740,9 @@ func newSync(quitCh <-chan struct{}, db ethdb.Database, tx ethdb.Database, minin
 	return engine, chainConfig, vmConfig, st, stMining, progress
 }
 
-func SetSnapshotKV(db ethdb.Database, snapshotDir string, mode snapshotsync.SnapshotMode) error {
+func SetSnapshotKV(snapshotKV ethdb.RwKV, snapshotDir string, mode snapshotsync.SnapshotMode) (ethdb.RwKV, error) {
 	if len(snapshotDir) > 0 {
-		snapshotKV := db.(ethdb.HasRwKV).RwKV()
-		var err error
-		snapshotKV, err = snapshotsync.WrapBySnapshotsFromDir(snapshotKV, snapshotDir, mode)
-		if err != nil {
-			return err
-		}
-		db.(ethdb.HasRwKV).SetRwKV(snapshotKV)
+		return snapshotsync.WrapBySnapshotsFromDir(snapshotKV, snapshotDir, mode)
 	}
-	return nil
+	return snapshotKV, nil
 }
