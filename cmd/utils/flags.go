@@ -106,7 +106,6 @@ var (
 	NetworkIdFlag = cli.Uint64Flag{
 		Name:  "networkid",
 		Usage: "Explicitly set network id (integer)(For testnets: use --chain <testnet_name> instead)",
-		Value: ethconfig.Defaults.NetworkID,
 	}
 	DeveloperPeriodFlag = cli.IntFlag{
 		Name:  "dev.period",
@@ -1087,7 +1086,10 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	cfg.P2PEnabled = len(stack.Config().P2P.SentryAddr) == 0
 
 	if ctx.GlobalIsSet(NetworkIdFlag.Name) {
-		cfg.NetworkID = ctx.GlobalUint64(NetworkIdFlag.Name)
+		v := ctx.GlobalUint64(NetworkIdFlag.Name)
+		if v != 0 {
+			cfg.NetworkID = &v
+		}
 	}
 
 	cfg.EnableDebugProtocol = ctx.GlobalBool(DebugProtocolFlag.Name)
@@ -1125,46 +1127,53 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	chain := ctx.GlobalString(ChainFlag.Name)
 	switch chain {
 	case "":
-		if cfg.NetworkID == 1 {
+		if cfg.NetworkID == nil {
 			SetDNSDiscoveryDefaults(cfg, params.MainnetGenesisHash)
 		}
 	case params.MainnetChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 1
+			var v uint64 = 1
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultGenesisBlock()
 		SetDNSDiscoveryDefaults(cfg, params.MainnetGenesisHash)
 	case params.RopstenChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 3
+			var v uint64 = 3
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultRopstenGenesisBlock()
 		SetDNSDiscoveryDefaults(cfg, params.RopstenGenesisHash)
 	case params.RinkebyChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 4
+			var v uint64 = 4
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultRinkebyGenesisBlock()
 		SetDNSDiscoveryDefaults(cfg, params.RinkebyGenesisHash)
 	case params.GoerliChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 5
+			var v uint64 = 5
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultGoerliGenesisBlock()
 		SetDNSDiscoveryDefaults(cfg, params.GoerliGenesisHash)
 	case params.TurboMineName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = new(big.Int).SetBytes([]byte("turbo-mine")).Uint64() // turbo-mine
+			var v uint64 = new(big.Int).SetBytes([]byte("turbo-mine")).Uint64() // turbo-mine
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultTurboMineGenesisBlock()
 	case params.BaikalChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 1642 // baikal
+			var v uint64 = 1642 // baikal
+			cfg.NetworkID = &v
 		}
 		cfg.Genesis = core.DefaultBaikalGenesisBlock()
 	case params.DevChainName:
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
-			cfg.NetworkID = 1337
+			var v uint64 = 1337
+			cfg.NetworkID = &v
 		}
 		// Create new developer account or reuse existing one
 		developer := cfg.Miner.Etherbase

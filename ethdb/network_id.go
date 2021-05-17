@@ -8,19 +8,20 @@ import (
 
 const networkIdLen int = 8
 
-func SetNetworkIdIfNotExist(db Database, networkId uint64) error {
+func SetNetworkIdIfNotExist(db Database, networkId uint64) (*uint64, error) {
 	id, err := db.GetOne(dbutils.DatabaseInfoBucket, dbutils.NetworkIdKey)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(id) != networkIdLen {
 		buf := make([]byte, networkIdLen)
 		binary.BigEndian.PutUint64(buf[:], networkId)
-		return db.Put(dbutils.DatabaseInfoBucket, dbutils.NetworkIdKey, buf)
+		return nil, db.Put(dbutils.DatabaseInfoBucket, dbutils.NetworkIdKey, buf)
 	}
 
-	return nil
+	v := binary.BigEndian.Uint64(id[:])
+	return &v, nil
 }
 
 func GetNetworkId(db Database) (*uint64, error) {

@@ -170,20 +170,28 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 	}
 	log.Info("Initialised chain configuration", "config", chainConfig)
 
-	if err := ethdb.SetNetworkIdIfNotExist(chainDb, config.NetworkID); err != nil {
+	var dbNetworkId *uint64
+	if dbNetworkId, err = ethdb.SetNetworkIdIfNotExist(chainDb, *config.NetworkID); err != nil {
 		return nil, err
 	}
 
-	networkId, err := ethdb.GetNetworkId(chainDb)
-	if err != nil {
-		return nil, err
+	if config.NetworkID != nil {
+		if dbNetworkId != nil && *dbNetworkId != *config.NetworkID {
+			return nil, fmt.Errorf("Mismatch between network ID in config and database (%d vs %d)", *config.NetworkID, *dbNetworkId)
+		}
+	} else {
+		if dbNetworkId != nil {
+			config.NetworkID = dbNetworkId
+		} else {
+			config.NetworkID = ethconfig.Defaults.NetworkID
+		}
 	}
 
 	backend := &Ethereum{
 		config:        config,
 		chainDB:       chainDb,
 		chainKV:       chainDb.(ethdb.HasRwKV).RwKV(),
-		networkID:     *networkId,
+		networkID:     *config.NetworkID,
 		etherbase:     config.Miner.Etherbase,
 		p2pServer:     stack.Server(),
 		torrentClient: torrentClient,
@@ -202,7 +210,7 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 
 	backend.engine = ethconfig.CreateConsensusEngine(chainConfig, consensusConfig, config.Miner.Notify, config.Miner.Noverify)
 
-	log.Info("Initialising Ethereum protocol", "network", networkId)
+	log.Info("Initialising Ethereum protocol", "network", config.NetworkID)
 
 	if err := ethdb.SetStorageModeIfNotExist(chainDb, config.StorageMode); err != nil {
 		return nil, err
@@ -362,7 +370,7 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 			backend.sentries = []proto_sentry.SentryClient{sentry}
 		}
 		blockDownloaderWindow := 65536
-		backend.downloadServer, err = download.NewControlServer(chainDb, stack.Config().NodeName(), chainConfig, genesisHash, backend.engine, backend.config.NetworkID, backend.sentries, blockDownloaderWindow)
+		backend.downloadServer, err = download.NewControlServer(chainDb, stack.Config().NodeName(), chainConfig, genesisHash, backend.engine, *backend.config.NetworkID, backend.sentries, blockDownloaderWindow)
 		if err != nil {
 			return nil, err
 		}
@@ -410,7 +418,7 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 			vmConfig:    &vmConfig,
 			engine:      backend.engine,
 			TxPool:      backend.txPool,
-			Network:     *networkId,
+			Network:     *config.NetworkID,
 			Checkpoint:  checkpoint,
 
 			Whitelist: config.Whitelist,

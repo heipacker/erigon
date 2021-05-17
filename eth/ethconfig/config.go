@@ -56,6 +56,8 @@ var LightClientGPO = gasprice.Config{
 	MaxPrice:   gasprice.DefaultMaxPrice,
 }
 
+var DefaultNetworkId uint64 = 1
+
 // Defaults contains default settings for use on the Ethereum main net.
 var Defaults = Config{
 	Ethash: ethash.Config{
@@ -65,7 +67,7 @@ var Defaults = Config{
 		DatasetsOnDisk:   2,
 		DatasetsLockMmap: false,
 	},
-	NetworkID:   1,
+	NetworkID:   &DefaultNetworkId,
 	StorageMode: ethdb.DefaultStorageMode,
 	Miner: params.MiningConfig{
 		GasFloor: 8000000,
@@ -112,7 +114,7 @@ type Config struct {
 	Genesis *core.Genesis `toml:",omitempty"`
 
 	// Protocol options
-	NetworkID uint64 // Network ID to use for selecting peers to connect to
+	NetworkID *uint64 // Network ID to use for selecting peers to connect to
 
 	// This can be set to list of enrtree:// URLs which will be queried for
 	// for nodes to connect to.

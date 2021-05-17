@@ -15,7 +15,7 @@ import (
 func (c Config) MarshalTOML() (interface{}, error) {
 	type Config struct {
 		Genesis                 *core.Genesis `toml:",omitempty"`
-		NetworkID               uint64
+		NetworkID               *uint64
 		EthDiscoveryURLs        []string
 		Pruning                 bool
 		Whitelist               map[uint64]common.Hash `toml:"-"`
@@ -87,7 +87,7 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 		c.Genesis = dec.Genesis
 	}
 	if dec.NetworkID != nil {
-		c.NetworkID = *dec.NetworkID
+		c.NetworkID = dec.NetworkID
 	}
 	if dec.EthDiscoveryURLs != nil {
 		c.EthDiscoveryURLs = dec.EthDiscoveryURLs
