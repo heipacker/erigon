@@ -235,6 +235,8 @@ var (
 	//StorageModeCallTraces - does not build index of call traces
 	StorageModeCallTraces = []byte("smCallTraces")
 
+	NetworkIdKey = []byte("NetworkId")
+
 	DBSchemaVersionKey = []byte("dbVersion")
 
 	HeadHeaderKey = "LastHeader"

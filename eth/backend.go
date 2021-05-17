@@ -170,11 +170,20 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 	}
 	log.Info("Initialised chain configuration", "config", chainConfig)
 
+	if err := ethdb.SetNetworkIdIfNotExist(chainDb, config.NetworkID); err != nil {
+		return nil, err
+	}
+
+	networkId, err := ethdb.GetNetworkId(chainDb)
+	if err != nil {
+		return nil, err
+	}
+
 	backend := &Ethereum{
 		config:        config,
 		chainDB:       chainDb,
 		chainKV:       chainDb.(ethdb.HasRwKV).RwKV(),
-		networkID:     config.NetworkID,
+		networkID:     *networkId,
 		etherbase:     config.Miner.Etherbase,
 		p2pServer:     stack.Server(),
 		torrentClient: torrentClient,
@@ -193,10 +202,9 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 
 	backend.engine = ethconfig.CreateConsensusEngine(chainConfig, consensusConfig, config.Miner.Notify, config.Miner.Noverify)
 
-	log.Info("Initialising Ethereum protocol", "network", config.NetworkID)
+	log.Info("Initialising Ethereum protocol", "network", networkId)
 
-	err = ethdb.SetStorageModeIfNotExist(chainDb, config.StorageMode)
-	if err != nil {
+	if err := ethdb.SetStorageModeIfNotExist(chainDb, config.StorageMode); err != nil {
 		return nil, err
 	}
 
@@ -402,7 +410,7 @@ func New(stack *node.Node, config *ethconfig.Config, gitCommit string) (*Ethereu
 			vmConfig:    &vmConfig,
 			engine:      backend.engine,
 			TxPool:      backend.txPool,
-			Network:     config.NetworkID,
+			Network:     *networkId,
 			Checkpoint:  checkpoint,
 
 			Whitelist: config.Whitelist,
