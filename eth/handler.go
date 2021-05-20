@@ -417,7 +417,11 @@ func (h *handler) BroadcastTransactions(txs types.Transactions) {
 	for peer, hashes := range annos {
 		annoPeers++
 		annoCount += len(hashes)
-		peer.AsyncSendPooledTransactionHashes(hashes)
+		if peer.Version() >= eth.ETH65 {
+			peer.AsyncSendPooledTransactionHashes(hashes)
+		} else {
+			peer.AsyncSendTransactions(hashes)
+		}
 	}
 	log.Debug("Transaction broadcast", "txs", len(txs),
 		"announce packs", annoPeers, "announced hashes", annoCount,
